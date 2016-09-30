@@ -1,0 +1,35 @@
+phpBinary=$(which -p php)
+
+arguments=()
+for arg in "${@}"; do
+    case "${arg}" in
+        --ml=*)
+            arguments+=("-dmemory_limit=${arg:5}")
+            ;;
+
+        --nml)
+            arguments+=("-dmemory_limit=-1")
+            ;;
+
+        --v[0-9][0-9])
+            directory="$(brew --prefix)/Cellar/php${arg:3}/"
+            phpBinary="${directory}$(ls "${directory}" | sort -r | head -1)/bin/php"
+            ;;
+
+        composer)
+            file="composer"
+            if [ ! -f "composer" ]; then
+                file="composer.phar"
+            fi
+
+            arguments+=("${file}")
+            ;;
+
+        *)
+            arguments+=("${arg}")
+            ;;
+    esac
+done
+
+$phpBinary $arguments[@]
+
